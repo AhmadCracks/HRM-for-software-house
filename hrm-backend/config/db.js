@@ -91,9 +91,9 @@ const testConnection = async () => {
   } catch (error) {
     console.error('❌ Unable to connect to MySQL database:', error.message);
     console.error('\n💡 Troubleshooting:');
-    console.error('   1. Make sure MySQL (XAMPP) is running');
-    console.error('   2. Check database credentials in .env file');
-    console.error('   3. Verify MySQL user has proper privileges');
+    console.error('   1. Check database credentials in .env file');
+    console.error('   2. Verify MySQL user has proper privileges');
+    console.error('   3. Check if ByteHost database is accessible');
     return false;
   }
 };
