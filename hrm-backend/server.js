@@ -98,17 +98,17 @@ const connectDatabase = async () => {
     if (isConnected) {
       dbConnected = true;
       // Run seed script to ensure users exist (only once, and only in production)
-      if (!seedRun && process.env.RUN_SEED !== 'false' && process.env.NODE_ENV === 'production') {
+      if (!seedRun && process.env.RUN_SEED !== 'false') {
         seedRun = true;
         // Run seed asynchronously to not block requests
         setImmediate(async () => {
           try {
             const { sequelize } = require('./config/db');
-            const { User } = require('./models');
+            const { User, Employee } = require('./models');
             await sequelize.sync({ alter: false });
             
             // Create admin if doesn't exist
-            await User.findOrCreate({
+            const [adminUser] = await User.findOrCreate({
               where: { email: 'admin@hrm.com' },
               defaults: {
                 email: 'admin@hrm.com',
@@ -117,9 +117,10 @@ const connectDatabase = async () => {
                 is_active: true
               }
             });
+            console.log('✅ Admin user ready:', adminUser.email);
             
             // Create manager if doesn't exist
-            await User.findOrCreate({
+            const [managerUser] = await User.findOrCreate({
               where: { email: 'manager@hrm.com' },
               defaults: {
                 email: 'manager@hrm.com',
@@ -128,9 +129,10 @@ const connectDatabase = async () => {
                 is_active: true
               }
             });
+            console.log('✅ Manager user ready:', managerUser.email);
             
             // Create employee if doesn't exist
-            await User.findOrCreate({
+            const [employeeUser] = await User.findOrCreate({
               where: { email: 'employee1@hrm.com' },
               defaults: {
                 email: 'employee1@hrm.com',
@@ -139,8 +141,25 @@ const connectDatabase = async () => {
                 is_active: true
               }
             });
+            console.log('✅ Employee user ready:', employeeUser.email);
             
-            console.log('✅ Default users seeded');
+            // Create employee record if doesn't exist
+            await Employee.findOrCreate({
+              where: { user_id: employeeUser.id },
+              defaults: {
+                user_id: employeeUser.id,
+                employee_id: 'EMP-001',
+                first_name: 'John',
+                last_name: 'Doe',
+                phone: '1234567890',
+                department: 'Development',
+                position: 'Software Developer',
+                joining_date: '2024-01-15',
+                salary: 50000
+              }
+            });
+            
+            console.log('✅ Default users seeded successfully');
           } catch (seedError) {
             console.warn('⚠️  Seed warning (users may already exist):', seedError.message);
           }
