@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { testConnection } = require('./config/db');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -65,25 +64,46 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Test database connection (non-blocking for Vercel)
-testConnection().catch(err => {
-  console.error('Database connection warning:', err.message);
+// Error handling middleware (must be after routes)
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  res.status(err.status || 500).json({
+    error: process.env.NODE_ENV === 'production' 
+      ? 'Internal Server Error' 
+      : err.message,
+    status: 'error'
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Route not found',
+    status: 'error'
+  });
 });
 
 // Start Server and Connect DB (only for local development)
 if (require.main === module) {
   const startServer = async () => {
-    // 1. Connect to Database
-    const isConnected = await testConnection();
+    try {
+      const { testConnection } = require('./config/db');
+      // 1. Connect to Database
+      const isConnected = await testConnection();
 
-    if (isConnected) {
-      // 2. Listen on Port
-      app.listen(PORT, () => {
-        console.log(`\n🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-        console.log(`🔗 http://localhost:${PORT}`);
-      });
-    } else {
-      console.error('❌ Server did not start due to database connection failure.');
+      if (isConnected) {
+        // 2. Listen on Port
+        app.listen(PORT, () => {
+          console.log(`\n🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+          console.log(`🔗 http://localhost:${PORT}`);
+        });
+      } else {
+        console.error('❌ Server did not start due to database connection failure.');
+        process.exit(1);
+      }
+    } catch (error) {
+      console.error('❌ Failed to start server:', error.message);
       process.exit(1);
     }
   };
@@ -92,5 +112,6 @@ if (require.main === module) {
 }
 
 // Export for Vercel serverless - Vercel will use this directly
+// Database connection will be lazy (connected on first request)
 module.exports = app;
 

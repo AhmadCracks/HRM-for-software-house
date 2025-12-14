@@ -59,7 +59,11 @@ const sequelizeConfig = {
     idle: 10000
   },
   dialectOptions: {
-    connectTimeout: 60000 // 60 seconds
+    connectTimeout: 20000, // 20 seconds for serverless
+    requestTimeout: 20000
+  },
+  retry: {
+    max: 3
   }
 };
 
