@@ -1,10 +1,17 @@
 import axios from 'axios';
 
-// Use environment variable or fallback to backend URL
+// Get API URL from environment variable
+// In production (Vercel), this MUST be set in environment variables
 const API_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD 
-    ? 'https://hrm-frontend-lac.vercel.app/api' 
-    : 'http://localhost:5000/api');
+  (import.meta.env.MODE === 'production'
+    ? 'https://hrm-backend-xxx.vercel.app/api' // Fallback - should use env var
+    : 'http://localhost:5000/api'); // Development
+
+// Log API URL for debugging (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔗 API URL:', API_URL);
+  console.log('🔗 VITE_API_URL env:', import.meta.env.VITE_API_URL);
+}
 
 const api = axios.create({
   baseURL: API_URL,
