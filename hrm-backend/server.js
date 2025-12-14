@@ -20,6 +20,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://hrm-frontendd.vercel.app',
   'https://hrm-frontend-lac.vercel.app',
+  '*', // Allow all for debugging if specific domains fail
   process.env.FRONTEND_URL
 ].filter(Boolean); // Remove undefined values
 
@@ -70,4 +71,10 @@ const startServer = async () => {
   }
 };
 
-startServer();
+// Export the app for Vercel Serverless
+module.exports = app;
+
+// Only start the server if running directly (local dev or traditional hosting)
+if (require.main === module) {
+  startServer();
+}
