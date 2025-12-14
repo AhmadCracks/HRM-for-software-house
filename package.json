@@ -1,0 +1,13 @@
+{
+  "name": "hrm-system",
+  "version": "1.0.0",
+  "description": "HRM System - Root package for Vercel deployment",
+  "scripts": {
+    "build": "cd hrm-frontend && npm install && npm run build",
+    "install": "cd hrm-frontend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
