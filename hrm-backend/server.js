@@ -19,6 +19,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://hrm-frontendd.vercel.app',
   'https://hrm-frontend-lac.vercel.app',
+  'https://hrm-for-softwarehousemanagementsystem-68d1t4gbo.vercel.app',
+  'https://hrm-for-softwarehousemanagementsystem.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -84,13 +86,87 @@ app.use((req, res) => {
   });
 });
 
+// Lazy database connection for Vercel serverless
+let dbConnected = false;
+let seedRun = false;
+const connectDatabase = async () => {
+  if (dbConnected) return true;
+  
+  try {
+    const { testConnection } = require('./config/db');
+    const isConnected = await testConnection();
+    if (isConnected) {
+      dbConnected = true;
+      // Run seed script to ensure users exist (only once, and only in production)
+      if (!seedRun && process.env.RUN_SEED !== 'false' && process.env.NODE_ENV === 'production') {
+        seedRun = true;
+        // Run seed asynchronously to not block requests
+        setImmediate(async () => {
+          try {
+            const { sequelize } = require('./config/db');
+            const { User } = require('./models');
+            await sequelize.sync({ alter: false });
+            
+            // Create admin if doesn't exist
+            await User.findOrCreate({
+              where: { email: 'admin@hrm.com' },
+              defaults: {
+                email: 'admin@hrm.com',
+                password: 'admin123',
+                role: 'admin',
+                is_active: true
+              }
+            });
+            
+            // Create manager if doesn't exist
+            await User.findOrCreate({
+              where: { email: 'manager@hrm.com' },
+              defaults: {
+                email: 'manager@hrm.com',
+                password: 'manager123',
+                role: 'manager',
+                is_active: true
+              }
+            });
+            
+            // Create employee if doesn't exist
+            await User.findOrCreate({
+              where: { email: 'employee1@hrm.com' },
+              defaults: {
+                email: 'employee1@hrm.com',
+                password: 'employee123',
+                role: 'employee',
+                is_active: true
+              }
+            });
+            
+            console.log('✅ Default users seeded');
+          } catch (seedError) {
+            console.warn('⚠️  Seed warning (users may already exist):', seedError.message);
+          }
+        });
+      }
+    }
+    return isConnected;
+  } catch (error) {
+    console.error('❌ Database connection error:', error.message);
+    return false;
+  }
+};
+
+// Middleware to ensure DB is connected before handling requests
+app.use(async (req, res, next) => {
+  if (!dbConnected && req.path !== '/api/health') {
+    await connectDatabase();
+  }
+  next();
+});
+
 // Start Server and Connect DB (only for local development)
 if (require.main === module) {
   const startServer = async () => {
     try {
-      const { testConnection } = require('./config/db');
-      // 1. Connect to Database
-      const isConnected = await testConnection();
+      const isConnected = await connectDatabase();
 
       if (isConnected) {
         // 2. Listen on Port
@@ -111,7 +187,6 @@ if (require.main === module) {
   startServer();
 }
 
-// Export for Vercel serverless - Vercel will use this directly
-// Database connection will be lazy (connected on first request)
+// Export for Vercel serverless - Database connection will be lazy (connected on first request)
 module.exports = app;
 
