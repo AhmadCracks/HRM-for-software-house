@@ -23,7 +23,10 @@ const ensureDatabaseExists = async () => {
       host: dbHost,
       port: dbPort,
       user: dbUser,
-      connectTimeout: dbTimeout
+      connectTimeout: dbTimeout,
+      // Additional options for Bytehost
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0
     };
     // Only add password if it's not empty
     if (dbPassword && dbPassword.trim() !== '') {
@@ -57,12 +60,12 @@ const sequelizeConfig = {
   pool: {
     max: 5,
     min: 0,
-    acquire: 30000,
+    acquire: 60000, // Increased for Bytehost
     idle: 10000
   },
   dialectOptions: {
-    connectTimeout: 20000, // 20 seconds for serverless
-    requestTimeout: 20000
+    connectTimeout: 30000, // 30 seconds for Bytehost (can be slow)
+    // Note: requestTimeout is not a valid option for mysql2
   },
   retry: {
     max: 3
