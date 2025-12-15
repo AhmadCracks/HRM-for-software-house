@@ -28,17 +28,34 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    // Allow if in allowed list, or if FRONTEND_URL matches, or in development
-    if (allowedOrigins.indexOf(origin) !== -1 || 
-        (process.env.FRONTEND_URL && origin.includes(process.env.FRONTEND_URL.replace('https://', '').split('.')[0])) ||
-        process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      // Log for debugging
-      console.log('CORS blocked origin:', origin);
-      console.log('Allowed origins:', allowedOrigins);
-      callback(null, true); // Temporarily allow all for easier debugging
+    
+    // Allow if in allowed list
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
     }
+    
+    // Allow if FRONTEND_URL matches (for dynamic Vercel URLs)
+    if (process.env.FRONTEND_URL) {
+      const frontendUrl = process.env.FRONTEND_URL.replace('https://', '').replace('http://', '');
+      if (origin.includes(frontendUrl)) {
+        return callback(null, true);
+      }
+    }
+    
+    // Allow in development
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    // Allow Vercel preview deployments (contains .vercel.app)
+    if (origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Log blocked origin for debugging
+    console.log('⚠️  CORS blocked origin:', origin);
+    console.log('✅ Allowed origins:', allowedOrigins);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   optionsSuccessStatus: 200
