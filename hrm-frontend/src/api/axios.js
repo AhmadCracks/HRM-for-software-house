@@ -2,13 +2,15 @@ import axios from 'axios';
 
 // Get API URL from environment variable
 // CRITICAL: In production (Vercel), VITE_API_URL MUST be set in Vercel environment variables
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Fallback to the verified backend URL if evn var is missing in production
+const PROD_BACKEND = 'https://hrm-for-software-house2.vercel.app/api';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? PROD_BACKEND : 'http://localhost:5000/api');
 
 // Warn if using localhost in production
 if (import.meta.env.MODE === 'production' && API_URL.includes('localhost')) {
   console.error('❌ ERROR: VITE_API_URL environment variable is not set in Vercel!');
   console.error('❌ Frontend is trying to connect to localhost instead of Vercel backend.');
-  console.error('📝 Fix: Add VITE_API_URL=https://your-backend-url.vercel.app/api in Vercel Dashboard');
+  console.error('📝 Fix: Add VITE_API_URL=https://hrm-for-software-house2.vercel.app/api in Vercel Dashboard');
 }
 
 // Log API URL for debugging
@@ -51,4 +53,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
