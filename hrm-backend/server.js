@@ -23,6 +23,7 @@ const allowedOrigins = [
   'https://hrm-frontendd.vercel.app',
   'https://hrm-frontend-lac.vercel.app',
   'https://hrm-for-software-house1.vercel.app',
+  'https://hrm-for-software-house.vercel.app',
   'https://hrm-for-softwarehousemanagementsystem-68d1t4gbo.vercel.app',
   'https://hrm-for-softwarehousemanagementsystem.vercel.app',
   process.env.FRONTEND_URL
