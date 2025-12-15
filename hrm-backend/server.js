@@ -198,8 +198,18 @@ const connectDatabase = async () => {
 
 // Middleware to ensure DB is connected before handling requests
 app.use(async (req, res, next) => {
-  if (!dbConnected && req.path !== '/api/health') {
-    await connectDatabase();
+  // Skip DB connection for health check
+  if (req.path === '/api/health' || req.path === '/') {
+    return next();
+  }
+  
+  // Try to connect if not connected
+  if (!dbConnected) {
+    const connected = await connectDatabase();
+    if (!connected && process.env.VERCEL) {
+      // On Vercel, don't block requests - connection will be retried
+      console.warn('⚠️  Database not connected, but continuing (Vercel serverless mode)');
+    }
   }
   next();
 });
