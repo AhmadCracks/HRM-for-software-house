@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "mkdir -p public && echo 'Backend Ready'",
+    "build": "mkdir -p public && echo 'Backend Running' > public/index.html",
     "seed": "node seeders/seed.js",
     "setup-db": "node scripts/createDatabase.js"
   },
