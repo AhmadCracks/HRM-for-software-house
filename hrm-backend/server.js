@@ -15,6 +15,7 @@ const performanceRoutes = require('./routes/performanceRoutes');
 const recruitmentRoutes = require('./routes/recruitmentRoutes');
 
 // Middleware - CORS Configuration
+// CORS Configuration for Frontend Access
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
@@ -91,6 +92,17 @@ app.get('/api/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString()
   });
+});
+
+// Test DB Connection Endpoint (Matches User Guide)
+app.get('/test-db', async (req, res) => {
+  try {
+    const { sequelize } = require('./config/db');
+    await sequelize.query('SELECT 1');
+    res.json({ message: 'ByteHost DB Connected ✅' });
+  } catch (err) {
+    res.status(500).json({ error: 'Database Connection Failed', details: err.message });
+  }
 });
 
 // Error handling middleware (must be after routes)
