@@ -53,6 +53,7 @@ if (useSqlite) {
     host: dbHost,
     port: dbPort,
     dialect: 'mysql',
+    dialectModule: require('mysql2'), // Fix for Vercel: Force explicit load of mysql2
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     define: {
       underscored: true,
