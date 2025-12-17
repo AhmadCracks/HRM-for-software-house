@@ -4,10 +4,9 @@
   "description": "HRM System - Root package for Vercel deployment",
   "scripts": {
     "build": "cd hrm-frontend && npm install && npm run build",
-    "install": "cd hrm-frontend && npm install"
+    "install": "npm install --prefix hrm-frontend && npm install --prefix hrm-backend"
   },
   "engines": {
     "node": ">=18.0.0"
   }
 }
-
