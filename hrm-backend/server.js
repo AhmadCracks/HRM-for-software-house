@@ -16,58 +16,16 @@ const recruitmentRoutes = require('./routes/recruitmentRoutes');
 
 // Middleware - CORS Configuration
 // CORS Configuration for Frontend Access
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:5173',
-  'https://hrm-frontendd.vercel.app',
-  'https://hrm-frontend-lac.vercel.app',
-  'https://hrm-for-software-house1.vercel.app',
-  'https://hrm-for-software-house.vercel.app',
-  'https://hrm-for-softwarehousemanagementsystem-68d1t4gbo.vercel.app',
-  'https://hrm-for-softwarehousemanagementsystem.vercel.app',
-  'https://hrm-for-software-house2.vercel.app', // Newly deployed frontend
-  'https://hrm-for-software-house-forntend.vercel.app', // Typo version
-  'https://hrm-for-software-house-frontendd.vercel.app', // Double 'd' version from error
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
+// Permissive CORS for Debugging
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    // Allow if in allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
-    }
-
-    // Allow if FRONTEND_URL matches (for dynamic Vercel URLs)
-    if (process.env.FRONTEND_URL) {
-      const frontendUrl = process.env.FRONTEND_URL.replace('https://', '').replace('http://', '');
-      if (origin.includes(frontendUrl)) {
-        return callback(null, true);
-      }
-    }
-    // Allow in development
-    if (process.env.NODE_ENV === 'development') {
-      return callback(null, true);
-    }
-
-    // Allow Vercel preview deployments (contains .vercel.app)
-    if (origin.includes('.vercel.app')) {
-      return callback(null, true);
-    }
-
-    // Log blocked origin for debugging
-    console.log('⚠️  CORS blocked origin:', origin);
-    console.log('✅ Allowed origins:', allowedOrigins);
-    callback(new Error('Not allowed by CORS'));
-  },
+  origin: true, // Allow all origins
   credentials: true,
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 };
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Enable pre-flight across-the-board
 app.use(express.json());
