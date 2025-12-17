@@ -28,6 +28,7 @@ const allowedOrigins = [
   'https://hrm-for-softwarehousemanagementsystem-68d1t4gbo.vercel.app',
   'https://hrm-for-softwarehousemanagementsystem.vercel.app',
   'https://hrm-for-software-house2.vercel.app', // Newly deployed frontend
+  'https://hrm-for-software-house-forntend.vercel.app', // User provided frontend URL
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -87,6 +88,16 @@ app.get('/', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Fix for /api base route 404
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'HRM API Base Endpoint',
+    status: 'ok',
+    version: '1.0.0'
+  });
+});
+
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
