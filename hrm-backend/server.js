@@ -61,6 +61,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Debug Endpoint (Temporary)
+app.get('/api/debug-config', (req, res) => {
+  const dbUrl = process.env.DATABASE_URL;
+  res.json({
+    node_env: process.env.NODE_ENV,
+    has_db_url: !!dbUrl,
+    db_url_masked: dbUrl ? `${dbUrl.substring(0, 15)}...` : 'MISSING',
+    vercel_env: !!process.env.VERCEL,
+    frontend_url: process.env.FRONTEND_URL
+  });
+});
+
 // Test DB Connection Endpoint (Matches User Guide)
 app.get('/test-db', async (req, res) => {
   try {
