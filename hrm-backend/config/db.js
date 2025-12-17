@@ -23,7 +23,7 @@ if (process.env.DATABASE_URL) {
         rejectUnauthorized: false
       }
     },
-    logging: false, // Set to console.log to see SQL queries
+    logging: false,
     define: {
       underscored: true,
       timestamps: true,
@@ -38,27 +38,45 @@ if (process.env.DATABASE_URL) {
     }
   });
 } else {
-  // Fallback for local development without DATABASE_URL (e.g. SQLite for testing)
-  console.log('⚠️  DATABASE_URL not found. Using local SQLite database for development.');
-  sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: path.join(__dirname, '../database.sqlite'),
-    logging: false,
-    define: {
-      underscored: true,
-      timestamps: true,
-      createdAt: 'created_at',
-      updatedAt: 'updated_at'
-    }
-  });
+  // Fallback Logic
+  if (isVercel) {
+    // CRITICAL for Vercel: Do NOT start if DB vars are missing.
+    // Falling back to SQLite will crash the function because of missing binaries/read-only FS.
+    console.error('❌ FATAL: DATABASE_URL is missing in Vercel Environment!');
+    console.error('   Please add DATABASE_URL to Vercel Project Settings.');
+    // We create a dummy sequelize to prevent immediate crash on export, but 'authenticate' will fail.
+    // This allows the server to start so it can serve the error message.
+    sequelize = {
+      authenticate: async () => { throw new Error('DATABASE_URL is missing on Vercel'); },
+      query: async () => { throw new Error('DATABASE_URL is missing on Vercel'); },
+      sync: async () => { /* no-op */ }
+    };
+  } else {
+    // Local Development Fallback
+    console.log('⚠️  DATABASE_URL not found. Using local SQLite database for development.');
+    sequelize = new Sequelize({
+      dialect: 'sqlite',
+      storage: path.join(__dirname, '../database.sqlite'),
+      logging: false,
+      define: {
+        underscored: true,
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at'
+      }
+    });
+  }
 }
 
 const testConnection = async () => {
   try {
     console.log('\n🔌 Attempting database connection...');
-    await sequelize.authenticate();
-    console.log('✅ Connection established successfully to Supabase/PostgreSQL.');
-    return true;
+    if (sequelize.authenticate) {
+      await sequelize.authenticate();
+      console.log('✅ Connection established successfully.');
+      return true;
+    }
+    return false;
   } catch (error) {
     console.error('\n❌ Unable to connect to database');
     console.error(`   Error: ${error.message}`);
