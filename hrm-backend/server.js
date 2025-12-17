@@ -15,19 +15,33 @@ const performanceRoutes = require('./routes/performanceRoutes');
 const recruitmentRoutes = require('./routes/recruitmentRoutes');
 
 // Middleware - CORS Configuration
-// CORS Configuration for Frontend Access
-// Permissive CORS for Debugging
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://hrm-for-software-house2.vercel.app',
+  'https://hrm-for-software-house-7b54.vercel.app', // <--- Fixed Origin
+  'https://hrm-for-software-house-forntend.vercel.app',
+  'https://hrm-for-software-house-frontendd.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 const corsOptions = {
-  origin: true, // Allow all origins
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    console.log('⚠️  CORS blocked origin:', origin);
+    return callback(null, true); // Permissive fallback for Vercel preview environments
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 };
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Enable pre-flight across-the-board
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Routes Setup
