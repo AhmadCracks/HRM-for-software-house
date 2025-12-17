@@ -28,7 +28,8 @@ const allowedOrigins = [
   'https://hrm-for-softwarehousemanagementsystem-68d1t4gbo.vercel.app',
   'https://hrm-for-softwarehousemanagementsystem.vercel.app',
   'https://hrm-for-software-house2.vercel.app', // Newly deployed frontend
-  'https://hrm-for-software-house-forntend.vercel.app', // User provided frontend URL
+  'https://hrm-for-software-house-forntend.vercel.app', // Typo version
+  'https://hrm-for-software-house-frontendd.vercel.app', // Double 'd' version from error
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
