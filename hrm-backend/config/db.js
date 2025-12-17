@@ -44,12 +44,32 @@ if (process.env.DATABASE_URL) {
     // Falling back to SQLite will crash the function because of missing binaries/read-only FS.
     console.error('❌ FATAL: DATABASE_URL is missing in Vercel Environment!');
     console.error('   Please add DATABASE_URL to Vercel Project Settings.');
-    // We create a dummy sequelize to prevent immediate crash on export, but 'authenticate' will fail.
-    // This allows the server to start so it can serve the error message.
+
+    // Mock Model to prevent crash during model definition and association
+    const mockModel = {
+      hasOne: () => { },
+      belongsTo: () => { },
+      hasMany: () => { },
+      findOne: async () => { throw new Error('DATABASE_URL is missing!'); },
+      create: async () => { throw new Error('DATABASE_URL is missing!'); },
+      findByPk: async () => { throw new Error('DATABASE_URL is missing!'); },
+      findAll: async () => { throw new Error('DATABASE_URL is missing!'); },
+      update: async () => { throw new Error('DATABASE_URL is missing!'); },
+      destroy: async () => { throw new Error('DATABASE_URL is missing!'); },
+      prototype: {}
+    };
+
+    // We create a dummy sequelize to prevent immediate crash on export
     sequelize = {
       authenticate: async () => { throw new Error('DATABASE_URL is missing on Vercel'); },
       query: async () => { throw new Error('DATABASE_URL is missing on Vercel'); },
-      sync: async () => { /* no-op */ }
+      sync: async () => { /* no-op */ },
+      // Mock methods used in models/index.js, models/User.js, and controllers
+      define: () => mockModel,
+      where: () => { },
+      fn: () => { },
+      col: () => { },
+      literal: () => { }
     };
   } else {
     // Local Development Fallback
