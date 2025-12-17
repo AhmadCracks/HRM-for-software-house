@@ -16,7 +16,20 @@
     "routes": [
         {
             "src": "/api/(.*)",
-            "dest": "hrm-backend/server.js"
+            "dest": "hrm-backend/server.js",
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept",
+                "Access-Control-Allow-Credentials": "true"
+            }
         },
         {
             "src": "/(.*)",
