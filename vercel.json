@@ -1,0 +1,29 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "hrm-backend/server.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "hrm-frontend/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "hrm-backend/server.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "hrm-frontend/$1",
+            "headers": {
+                "Access-Control-Allow-Origin": "*"
+            }
+        }
+    ]
+}
