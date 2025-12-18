@@ -15,9 +15,10 @@ const performanceRoutes = require('./routes/performanceRoutes');
 const recruitmentRoutes = require('./routes/recruitmentRoutes');
 
 // Middleware - CORS Configuration
-// Allow all origins with credentials (reflects the request origin)
+// Middleware - CORS Configuration
+// Allow requests from the frontend domain and localhost
 app.use(cors({
-  origin: true,
+  origin: true, // Dynamically set Access-Control-Allow-Origin to the request origin
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']

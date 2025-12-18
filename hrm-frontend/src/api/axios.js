@@ -11,7 +11,10 @@ if (envApiUrl && !envApiUrl.endsWith('/api') && !envApiUrl.endsWith('/')) {
   envApiUrl += '/api';
 }
 
-const API_URL = envApiUrl || (import.meta.env.MODE === 'production' ? PROD_BACKEND : 'http://localhost:5000/api');
+// FORCE relative path in production to use Vercel's internal rewrite (Avoids CORS)
+const API_URL = import.meta.env.MODE === 'production'
+  ? '/api'
+  : (envApiUrl || 'http://localhost:5000/api');
 
 // Warn if using localhost in production
 if (import.meta.env.MODE === 'production' && API_URL.includes('localhost')) {

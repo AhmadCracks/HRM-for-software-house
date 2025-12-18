@@ -5,7 +5,7 @@ require('dotenv').config();
 // Environment Detection
 const isVercel = !!process.env.VERCEL;
 
-// Log configuration
+// Log configuration 
 console.log('🔧 Database Configuration (Mode: PostgreSQL/Supabase)');
 
 let sequelize;
